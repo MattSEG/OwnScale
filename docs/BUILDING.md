@@ -1,5 +1,9 @@
 # Building and setup
 
+## Install without building
+
+Download [OwnScale.apk](https://github.com/MattSEG/OwnScale/releases/latest/download/OwnScale.apk) on an Android 14+ device, open it, allow installation from that browser/file manager if Android asks, and tap Install. Release notes include a SHA-256 checksum and signing-certificate fingerprint. Official releases can update each other; a separately signed local build cannot update an official installation in place.
+
 ## Toolchain
 
 The project is plain Java/native Android Views, built with Android SDK command-line tools. It has no Gradle or runtime third-party dependencies. Build on macOS or Linux; Windows users can use an appropriate Linux environment with working device access.
@@ -67,3 +71,15 @@ python3 tools/export.py /path/to/ownscale.db --out private/export
 ## GitHub Actions template
 
 [`ci.example.yml`](ci.example.yml) runs the pure Java/Python tests, builds the APK, and checks tracked files for private artifacts on Linux. To enable it, copy it to `.github/workflows/ci.yml` and push using a GitHub credential with workflow permission. The initial publication credential lacked that scope, so no hosted CI run is claimed for this revision. Local build and synthetic Android tests were run before publication.
+
+## Maintainer release signing
+
+Official downloadable APKs use a dedicated persistent signing key, separate from per-checkout local keys. Keep the release keystore and password file private, protected, and securely backed up: losing the key prevents in-place updates. Neither file belongs in Git or a release asset.
+
+```sh
+SIGNING_KEYSTORE="$PWD/private/release/ownscale-release.keystore" \
+SIGNING_PASSWORD_FILE="$PWD/private/release/password.txt" \
+DEBUGGABLE=false ./build.sh
+```
+
+`SIGNING_KEY_ALIAS` defaults to `ownscale`. Release passwords are read from a file, not embedded in source or passed as plaintext process arguments. Verify the APK signature, non-debuggable manifest, application/version IDs, and absence of instrumentation before upload. Publish `OwnScale.apk` and `SHA256SUMS`, not a signing key. The stable README link depends on keeping the asset name `OwnScale.apk` across releases.

@@ -8,6 +8,20 @@ A big thank-you to **[Jozef Jarosciak](https://github.com/JozefJarosciak)** and 
 
 > Early experimental software. Body-fat outputs are estimates and user-selected scenarios, not validated measurements. OwnScale is independent of Hume and Blue2Scale and is not endorsed by either.
 
+## Download and install
+
+### [Download OwnScale for Android (.apk)](https://github.com/MattSEG/OwnScale/releases/latest/download/OwnScale.apk)
+
+**Android 14 or newer. No build tools or account required.**
+
+1. Open the download link on your Android phone.
+2. Open `OwnScale.apk`. If Android asks, allow **Install unknown apps** for the browser or file manager you used.
+3. Tap **Install**, open OwnScale, and enter your profile in Settings. Allow Nearby devices when prompted; Health Connect access is optional.
+
+You can turn off that browser/file manager's install permission afterward. Future official APKs use the same signing identity so they can update in place. Export a backup before uninstalling or switching from a self-built version with a different signature.
+
+[Release notes and checksums](https://github.com/MattSEG/OwnScale/releases/latest) · [Build from source](#build-and-install)
+
 ## What it does
 
 - **Direct Bluetooth capture:** stable weight, impedance observations, and original notification packets. Connect automatically while the app is open, or start manually.
@@ -39,7 +53,7 @@ export JAVA_HOME="/path/to/jdk-17"
 "$ANDROID_HOME/platform-tools/adb" install -r build/ownscale.apk
 ```
 
-The build generates a private signing key for your checkout. **Keep that key to install updates without uninstalling. Never commit it.** The normal build is not debuggable. This repository distributes source; there is no official prebuilt release yet.
+The build generates a private signing key for your checkout. **Keep that key to install updates without uninstalling. Never commit it.** The normal build is not debuggable. Official prebuilt APKs are available from [GitHub Releases](https://github.com/MattSEG/OwnScale/releases/latest). Your local build key differs from the official release key.
 
 Full instructions, overrides, Android permissions and troubleshooting: **[Building and setup](docs/BUILDING.md)**.
 

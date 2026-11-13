@@ -11,6 +11,7 @@ for tool in python3 java javac jar keytool aapt2 d8 zip zipalign apksigner; do
 done
 [ -f "$ANDROID_JAR" ] || { echo 'Install platforms;android-35 or set ANDROID_JAR.' >&2; exit 1; }
 mkdir -p build private
+rm -f build/ownscale.apk build/ownscale.apk.idsig
 chmod 700 private
 rm -rf build/gen build/classes build/dex
 mkdir -p build/gen build/classes build/dex
@@ -30,11 +31,17 @@ d8 --lib "$ANDROID_JAR" --min-api 34 --output build/dex build/classes.jar
 cp build/base.apk build/unsigned.apk
 (cd build/dex && zip -q -u ../unsigned.apk classes.dex)
 zipalign -f -p 4 build/unsigned.apk build/aligned.apk
-# A per-checkout key, never the original developer's key. For personal sideloading.
-if [ ! -f private/signing.keystore ]; then
-  keytool -genkeypair -keystore private/signing.keystore -storepass android -keypass android -alias ownscale -dname 'CN=OwnScale Local Build' -keyalg RSA -keysize 2048 -validity 10000 >/dev/null 2>&1
-  chmod 600 private/signing.keystore
+# Local builds get their own key. Official releases explicitly select a persistent key.
+if [ -n "${SIGNING_KEYSTORE:-}" ]; then
+  : "${SIGNING_PASSWORD_FILE:?Set SIGNING_PASSWORD_FILE for the release key}"
+  [ -f "$SIGNING_KEYSTORE" ] && [ -f "$SIGNING_PASSWORD_FILE" ] || { echo 'Signing key or password file missing.' >&2; exit 1; }
+  apksigner sign --ks "$SIGNING_KEYSTORE" --ks-key-alias "${SIGNING_KEY_ALIAS:-ownscale}" --ks-pass "file:$SIGNING_PASSWORD_FILE" --out build/ownscale.apk build/aligned.apk
+else
+  if [ ! -f private/signing.keystore ]; then
+    keytool -genkeypair -keystore private/signing.keystore -storepass android -keypass android -alias ownscale -dname 'CN=OwnScale Local Build' -keyalg RSA -keysize 2048 -validity 10000 >/dev/null 2>&1
+    chmod 600 private/signing.keystore
+  fi
+  apksigner sign --ks private/signing.keystore --ks-pass pass:android --out build/ownscale.apk build/aligned.apk
 fi
-apksigner sign --ks private/signing.keystore --ks-pass pass:android --out build/ownscale.apk build/aligned.apk
 apksigner verify build/ownscale.apk
 printf 'Built build/ownscale.apk\n'
