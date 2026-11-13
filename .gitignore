@@ -1,0 +1,21 @@
+# Private data and local build state must never be published.
+private/
+build/
+local.properties
+.env
+.env.*
+*.apk
+*.aab
+*.idsig
+*.keystore
+*.jks
+*.db
+*.db-*
+*.sqlite*
+*.csv
+*.log
+*.hprof
+.DS_Store
+__pycache__/
+*.pyc
+.idea/
